@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>점심 메뉴 추천</title>
+  </head>
+  <body>
+    <header>
+      <button id="resetButton">저장된 데이터 리셋</button>
+    </header>
+    <form id="controller">
+      <label>
+        모델 :
+        <select name="modelOption">
+          <option value="1">gemini-1.5-flash</option>
+          <option value="2">deepseek-r1</option>
+        </select>
+      </label>
+      <textarea name="textData"></textarea>
+      <button>등록</button>
+    </form>
+    <div id="container"></div>
+
+    <script>
+      const _ = () => {
+        const container = document.querySelector("#container");
+        const form = document.querySelector("#controller");
+        const resetButton = document.querySelector("#resetButton");
+
+        // 저장된 데이터 리셋
+        resetButton.addEventListener("click", () => (data.length = 0));
+
+        const data = new Proxy([], {
+          set(target, property, value) {
+            target[property] = value; // 배열에 값 저장
+            updateContainer(); // 화면 업데이트
+            updateStorage(target); // 브라우저 로컬 스토리지에 데이터 저장
+            return true;
+          },
+        });
+
+        // 페이지가 로드될 때, 저장된 데이터를 불러오기
+        function onMounted() {
+          data.push(...(JSON.parse(localStorage.getItem("myData")) ?? []));
+        }
+        onMounted();
+
+        // 화면을 최신 상태로 업데이트
+        function updateContainer() {
+          container.innerHTML = ""; // 기존 화면 비우기
+          for (const d of data) {
+            const tmp = document.createElement("div");
+            tmp.textContent = d.text;
+
+            // 삭제
+            const deleteButton = document.createElement("button");
+            deleteButton.textContent = "삭제";
+            deleteButton.addEventListener("click", () => {
+              const filtered = data.filter((value) => value.id !== d.id);
+              data.length = 0;
+              data.push(...filtered);
+            });
+
+            // 답변이 있을 경우, 답변을 표시
+            if (d.reply) {
+              const box = document.createElement("div");
+              const reply = document.createElement("code");
+              box.appendChild(reply);
+              box.style.padding = "12px";
+              box.style.margin = "4px";
+              box.style.backgroundColor = "beige";
+              box.style.border = "1px solid black";
+              reply.textContent = d.reply;
+              tmp.appendChild(box);
+            }
+
+            tmp.appendChild(deleteButton);
+            container.appendChild(tmp); // 화면에 추가
+          }
+        }
+
+        // 데이터를 로컬 스토리지에 저장
+        function updateStorage(target) {
+          localStorage.setItem("myData", JSON.stringify(target));
+        }
+
+        // 폼이 제출될 때 실행되는 함수
+        async function handleForm(event) {
+          event.preventDefault(); // 폼 제출 시 페이지 리로드 방지
+          const formData = new FormData(form); // 폼 데이터 가져오기
+          const text = formData.get("textData"); // 텍스트 데이터 가져오기
+          let reply;
+
+          // 선택한 모델에 따라 다른 방식으로 답변 생성
+          switch (formData.get("modelOption")) {
+            case "1":
+              reply = `💡 Gemini : ${await makeReply(text)}`; // Gemini 모델 사용
+              break;
+            case "2":
+              reply = `🌊 DeepSeek : ${await makeReply2(text)}`; // DeepSeek 모델 사용
+              break;
+            default:
+              alert("비정상적인 접근!"); // 에러 처리
+              throw new Error("알 수 없는 에러!");
+          }
+
+          // 새로운 데이터를 배열에 추가
+          const displayData = {
+            id: Date.now(), // 고유 ID로 현재 시간 사용하고있음
+            text,
+            reply,
+          };
+          data.push(displayData); // 데이터 배열에 추가
+        }
+
+        // 첫 번째 모델에서 답변을 생성하는 함수
+        async function makeReply(text) {
+          const url = "https://cold-carpal-church.glitch.me/1"; // API URL
+          const response = await fetch(url, {
+            method: "POST", // POST 요청
+            body: JSON.stringify({
+              text: ` {${text}}의 메시지를 바탕으로 메뉴를 추천해주면서, 신입 사원이 회사 사람들에게 메뉴를 제안하는 적절한 대사를 100자 이내의 한국말로 써줘. `,
+            }),
+            headers: {
+              "Content-Type": "application/json", // JSON 형식의 데이터 전송
+            },
+          });
+
+          const json = await response.json(); // JSON 응답 받기
+          return json.reply; // 모델의 답변 반환
+        }
+
+        // 두 번째 모델에서 답변을 생성하는 함수
+        async function makeReply2(content) {
+          const url = "https://cold-carpal-church.glitch.me/2"; // API URL
+          const response = await fetch(url, {
+            method: "POST", // POST 요청
+            body: JSON.stringify({
+              text: ` {${content}}의 메시지를 바탕으로 메뉴를 추천해주면서, 신입 사원이 회사 사람들에게 메뉴를 제안하는 적절한 대사를 100자 이내의 한국말로 써줘. `,
+            }),
+            headers: {
+              "Content-Type": "application/json", // JSON 형식의 데이터 전송
+            },
+          });
+
+          const json = await response.json(); // JSON 응답 받기
+          return json.reply; // 모델의 답변 반환
+        }
+
+        // 폼 제출 이벤트 리스너
+        form.addEventListener("submit", handleForm);
+      };
+
+      window.onload = _; // 페이지 로드 후 코드 실행
+    </script>
+  </body>
+</html>
