@@ -1,24 +1,247 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>점심 메뉴 추천</title>
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>당신의 편</title>
+
+      <!-- Favicon -->
+      <link
+        rel="icon"
+        type="image/png"
+        href="./favicon-96x96.png"
+        sizes="96x96"
+      />
+      <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+      <link rel="shortcut icon" href="./favicon.ico" />
+      <link
+        rel="apple-touch-icon"
+        sizes="180x180"
+        href="./apple-touch-icon.png"
+      />
+      <link rel="manifest" href="./site.webmanifest" />
+
+      <!-- Open Graph (OG) 태그 -->
+      <meta
+        property="og:title"
+        content="팀 막내를 위한 점심 메뉴 추천 서비스"
+      />
+      <meta
+        property="og:description"
+        content="팀 막내를 위한 점심 메뉴 추천 서비스! AI가 대신 고민해 드립니다. 🍽️"
+      />
+      <meta
+        property="og:image"
+        content="https://yourimagehost.com/yourimage.jpg"
+      />
+      <meta property="og:url" content="https://yourwebsite.com/" />
+      <meta property="og:type" content="website" />
+
+      <!-- 웹폰트 -->
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+      <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap"
+        rel="stylesheet"
+      />
+    </head>
   </head>
+  <style>
+    * {
+      box-sizing: border-box; /* 패딩과 테두리를 포함한 크기 조정 */
+    }
+    /* 헤더 스타일 - 고정 위치 설정 */
+    /* 헤더 스타일 - 고정 위치 및 크기 조정 */
+    header {
+      position: fixed; /* 💡 헤더를 최상단에 고정 */
+      top: 0;
+      left: 0;
+      width: 100%;
+      background-color: #a1bcfa;
+      padding: 20px 30px; /* 💡 내부 여백 추가 */
+      text-align: center;
+      font-size: 18px;
+      font-weight: bold;
+      z-index: 1000; /* 💡 다른 요소 위로 배치 */
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: auto; /* 💡 내용에 맞게 자동 조정 */
+      min-height: 120px; /* 💡 최소 높이 설정 */
+    }
+
+    /* 헤더 내부 텍스트 스타일 */
+    header h1 {
+      font-size: 24px;
+      margin-bottom: 8px; /* 💡 제목과 본문 간격 조정 */
+    }
+
+    header p {
+      font-size: 16px;
+      margin: 4px 0; /* 💡 텍스트 간격 조정 */
+      max-width: 80%; /* 💡 긴 텍스트가 너무 넓어지는 것 방지 */
+    }
+
+    /* body 스타일 - 헤더와 겹치지 않도록 패딩 추가 */
+    body {
+      font-family: "Noto Sans KR", sans-serif;
+      background-color: #dce2f0;
+      color: #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      min-height: 100vh;
+      text-align: center;
+      padding-top: 120px; /* 💡 헤더 높이(100px) + 추가 여백(20px) */
+    }
+
+    /* form 스타일 - 위쪽 간격 추가 */
+    form {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      display: inline-block;
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+      text-align: left;
+      width: 90%;
+      max-width: 500px;
+      margin-top: 20px; /* 💡 폼이 헤더에 붙지 않도록 추가 간격 설정 */
+    }
+
+    #resetButton {
+      background-color: #f5a9a0;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      cursor: pointer;
+      font-size: 16px;
+      border-radius: 5px;
+    }
+    #resetButton:hover {
+      background-color: #fc2f0b;
+    }
+
+    #submitButton {
+      background-color: #9db6ef;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      cursor: pointer;
+      font-size: 16px;
+      border-radius: 5px;
+    }
+    #submitButton:hover {
+      background-color: #55668d;
+    }
+
+    select,
+    textarea {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border: 1px solid #6a7ba2;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    textarea {
+      resize: none; /* 크기 조절 비활성화 */
+      height: 80px; /* 고정 높이 */
+    }
+    #container {
+      margin-top: 20px;
+      text-align: left;
+      display: inline-block;
+      width: 90%;
+      max-width: 500px;
+    }
+    .menu-item {
+      background: #ffffff;
+      padding: 20px 16px;
+      border-radius: 10px;
+      box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.15);
+      margin: 10px 0;
+      display: flex;
+      flex-direction: column; /* 🔹 요소를 위에서 아래로 정렬 */
+      justify-content: flex-start;
+      align-items: flex-start;
+      border: 1px solid #c8c8c8;
+      gap: 10px;
+      transition: background-color 0.3s ease-in-out;
+    }
+
+    /* API로부터 받은 응답 스타일 */
+    .reply {
+      background: #f1f3ff;
+      padding: 12px;
+      border-radius: 8px;
+      width: 100%;
+      font-weight: bold;
+    }
+
+    /* 사용자 메시지와 삭제 버튼을 같은 줄에 배치 */
+    .message-container {
+      display: flex;
+      width: 100%;
+      justify-content: space-between; /* 🔹 사용자 메시지는 왼쪽, 삭제 버튼은 오른쪽 */
+      align-items: center;
+    }
+
+    /* 사용자 메시지 스타일 */
+    .user-message {
+      color: #333;
+      padding: 12px;
+      font-size: 18px;
+      font-weight: bold;
+      flex-grow: 1; /* 🔹 남은 공간을 차지하여 왼쪽 정렬 유지 */
+    }
+
+    .delete-button {
+      background: #f5a9a0;
+      padding: 10px 15px;
+      font-size: 16px;
+      border-radius: 5px;
+      color: white;
+      border: none;
+      cursor: pointer;
+      margin-left: auto;
+      min-width: 80px;
+    }
+    .delete-button:hover {
+      background: #fc2f0b;
+    }
+
+    .button-container {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
+  </style>
   <body>
     <header>
-      <button id="resetButton">저장된 데이터 리셋</button>
+      <h1>⭐️팀 막내들을 위한 메뉴 추천 서비스⭐️</h1>
+      <p>모든 막내들을 응원합니다!!💪🏻</p>
     </header>
     <form id="controller">
       <label>
         모델 :
         <select name="modelOption">
-          <option value="1">gemini-1.5-flash</option>
-          <option value="2">deepseek-r1</option>
+          <option value="1">💡Gemini</option>
+          <option value="2">🌊Deepseek</option>
         </select>
       </label>
-      <textarea name="textData"></textarea>
-      <button>등록</button>
+      <textarea
+        name="textData"
+        placeholder="메뉴 추천이 필요한 상황을 입력해주세요"
+      ></textarea>
+
+      <div class="button-container">
+        <button id="resetButton">저장된 데이터 리셋</button>
+        <button id="submitButton">등록</button>
+      </div>
     </form>
     <div id="container"></div>
 
@@ -51,31 +274,39 @@
           container.innerHTML = ""; // 기존 화면 비우기
           for (const d of data) {
             const tmp = document.createElement("div");
-            tmp.textContent = d.text;
+            tmp.className = "menu-item";
 
-            // 삭제
+            // 사용자 메시지와 삭제 버튼을 같은 줄에 배치
+            const messageContainer = document.createElement("div");
+            messageContainer.className = "message-container";
+
+            // 사용자 입력 메시지 추가
+            const userMessage = document.createElement("div");
+            userMessage.className = "user-message";
+            userMessage.textContent = d.text;
+            messageContainer.appendChild(userMessage);
+
+            // 삭제 버튼
             const deleteButton = document.createElement("button");
             deleteButton.textContent = "삭제";
+            deleteButton.className = "delete-button";
             deleteButton.addEventListener("click", () => {
               const filtered = data.filter((value) => value.id !== d.id);
               data.length = 0;
               data.push(...filtered);
             });
 
-            // 답변이 있을 경우, 답변을 표시
+            messageContainer.appendChild(deleteButton); // 삭제 버튼 추가
+            tmp.appendChild(messageContainer); // message-container 추가
+
+            // API 응답 추가 (사용자 메시지 아래로 배치)
             if (d.reply) {
               const box = document.createElement("div");
-              const reply = document.createElement("code");
-              box.appendChild(reply);
-              box.style.padding = "12px";
-              box.style.margin = "4px";
-              box.style.backgroundColor = "beige";
-              box.style.border = "1px solid black";
-              reply.textContent = d.reply;
+              box.className = "reply";
+              box.textContent = d.reply;
               tmp.appendChild(box);
             }
 
-            tmp.appendChild(deleteButton);
             container.appendChild(tmp); // 화면에 추가
           }
         }
